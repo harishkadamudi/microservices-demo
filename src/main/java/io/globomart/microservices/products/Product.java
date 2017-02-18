@@ -32,15 +32,15 @@ public class Product implements Serializable {
 	//@JsonIgnore
 	@NotNull
 	@Column(name = "productid")
-	protected Long id;
+	private Long id;
 	
 	@Column(name = "productname")
 	@NotNull
-	protected String name;
+	private String name;
 
 	@Column(name = "productdescription")
 	@NotNull
-	protected String description;
+	private String description;
 	
 	//protected BigDecimal balance;
 

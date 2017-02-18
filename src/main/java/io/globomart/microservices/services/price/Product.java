@@ -12,11 +12,14 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 @JsonRootName("Product")
 public class Product {
 
+	// Product ID
 	protected Long id;
+	// Product Name
 	protected String name;
+	// Product Description
 	protected String description;
+	//Product Price
 	protected BigDecimal price;
-	//protected BigDecimal balance;
 
 	/**
 	 * Default constructor for JPA only.
@@ -64,19 +67,4 @@ public class Product {
 		this.price = price;
 	}
 
-	/*public BigDecimal getBalance() {
-		return balance.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-	}*/
-
-	/*protected void setBalance(BigDecimal value) {
-		balance = value;
-		balance.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-	}*/
-
-	/*@Override
-	public String toString() {
-		return number + " [" + owner + "]: $" + balance;
-	}*/
-	
-	
 }

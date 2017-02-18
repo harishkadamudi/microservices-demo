@@ -15,9 +15,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  */
 @Configuration
 @ComponentScan
-@EntityScan("io.globomart.microservices.products")
-@EnableJpaRepositories("io.globomart.microservices.products")
-@PropertySource("classpath:db-config.properties")
+@EntityScan("io.globomart.microservices.products") // package to find for entity classes
+@EnableJpaRepositories("io.globomart.microservices.products") // package to find JPA/Repositor classes
+@PropertySource("classpath:db-config.properties") // place to find DB configuration file
 public class ProductsConfiguration {
 
 	protected Logger logger;

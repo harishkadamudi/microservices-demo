@@ -19,11 +19,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	 */
 	public Product findByName(String productName);
 
-	//public Account save(Product account);
 	/**
 	 * Find products whose description name contains the specified string
 	 * 
-	 * @param partialName
+	 * @param description
 	 *            Any alphabetic string.
 	 * @return The list of matching products - always non-null, but may be
 	 *         empty.

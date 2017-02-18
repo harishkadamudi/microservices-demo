@@ -9,11 +9,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.globomart.microservices.exceptions.ProductstCreateException;
 import io.globomart.microservices.exceptions.ProductstNotFoundException;
 
 /**
@@ -24,7 +27,7 @@ import io.globomart.microservices.exceptions.ProductstNotFoundException;
 @RestController
 public class ProductsController {
 
-	protected Logger logger = Logger.getLogger(ProductsController.class.getName());
+	protected static final Logger LOGGER = Logger.getLogger(ProductsController.class.getName());
 	@Autowired
 	protected ProductRepository productRepository;
 
@@ -38,21 +41,35 @@ public class ProductsController {
 	public ProductsController(ProductRepository productRepository) {
 		this.productRepository = productRepository;
 
-		logger.info("ProductRepository says system has " + productRepository.countAccounts() + " Products");
+		LOGGER.info("ProductRepository says system has " + productRepository.countAccounts() + " Products");
 	}
-
+	
+	/**
+	 * Saves the Product with the specified inputs.
+	 *  
+	 * @param product
+	 * @return saved entity.
+	 * @throws ProductstNotFoundException.
+	 * @throws ProductstCreateException.
+	 * 		   If any Exception Occurs while saving Product Entity/Object
+	 */
 	@POST
 	@RequestMapping("/products/create")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Product saveProducts(@RequestBody Product product) {
-
-		logger.info("product-service saveProducts() invoked: " + product);
-		Product save = productRepository.save(product);
-		if (save == null)
-			throw new ProductstNotFoundException(save);
-		else {
-			return save;
+		Product save = null;
+		try{
+			LOGGER.info("product-service saveProducts() invoked: " + product);
+			save = productRepository.save(product);
+			if (save == null)
+				throw new ProductstCreateException(save);
+			else {
+				return save;
+			}
+		}catch(Exception ex){
+			LOGGER.warning("error while saving product");
+			throw new ProductstCreateException(save);
 		}
 	}
 
@@ -68,9 +85,9 @@ public class ProductsController {
 	@RequestMapping("/products/{productId}")
 	public Product byNumber(@PathVariable("productId") Long productId) {
 
-		logger.info("products-service byNumber() invoked: " + productId);
+		LOGGER.info("products-service byNumber() invoked: " + productId);
 		Product product = productRepository.findOne(productId);
-		logger.info("products-service byNumber() found: " + product);
+		LOGGER.info("products-service byNumber() found: " + product);
 
 		if (product == null)
 			throw new ProductstNotFoundException(productId);
@@ -90,11 +107,11 @@ public class ProductsController {
 	 */
 	@RequestMapping("/products/description")
 	public List<Product> bydescription(@RequestBody SearchCriteria criteria) {
-		logger.info("products-service bydescription() invoked: " + productRepository.getClass().getName() + " for "
+		LOGGER.info("products-service bydescription() invoked: " + productRepository.getClass().getName() + " for "
 				+ criteria.getDescription());
 
 		List<Product> accounts = productRepository.findByDescriptionContainingIgnoreCase(criteria.getDescription());
-		logger.info("products-service bydescription() found: " + accounts);
+		LOGGER.info("products-service bydescription() found: " + accounts);
 
 		if (accounts == null || accounts.size() == 0)
 			throw new ProductstNotFoundException(criteria.getDescription());
@@ -102,18 +119,26 @@ public class ProductsController {
 			return accounts;
 		}
 	}
-
+	
+	/**
+	 * Deletes Products from DB, based on the ProductId.
+	 * 
+	 * @param productId
+	 * 			Product to be deleted
+	 * @return HttpStatus code 200-OK, If product is deleted successfully.
+	 * @return HttpStatus code 500-Bad Request, If Exception while deleting the product.
+	 * 
+	 */
 	@RequestMapping("/products/delete/{productid}")
-	public String deletebyid(@PathVariable("productid") Long productId) {
-		logger.info("products-service deletebyid() invoked: " + productRepository.getClass().getName() + " for "
+	public ResponseEntity<Boolean> deletebyid(@PathVariable("productid") Long productId) {
+		LOGGER.info("products-service deletebyid() invoked: " + productRepository.getClass().getName() + " for "
 				+ productId);
-
-		productRepository.delete(productId);
-		logger.info("products-service deletebyid() found: ");
-		return "If record exists, it will be deleted";
-		/*
-		 * if (accounts == null || accounts.size() == 0) throw new
-		 * AccountNotFoundException(productId); else { return accounts; }
-		 */
+		try{
+			productRepository.delete(productId);
+			LOGGER.info("products-service deletebyid() found: ");
+		}catch(Exception ex){
+			return new ResponseEntity<Boolean>(HttpStatus.BAD_REQUEST);
+		}
+		return new ResponseEntity<Boolean>(HttpStatus.OK);
 	}
 }

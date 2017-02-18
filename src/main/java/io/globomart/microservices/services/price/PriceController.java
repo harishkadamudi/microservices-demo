@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.globomart.microservices.exceptions.EntityCreateException;
+import io.globomart.microservices.exceptions.PriceNotFoundException;
+
 /**
  * Client controller, fetches Product info from the microservice via
  * {@link PriceProductsService}.
@@ -28,96 +31,121 @@ public class PriceController {
 
 	@Autowired
 	private PriceRepository priceRepository;
-	protected Logger logger = Logger.getLogger(PriceController.class.getName());
+
+	protected final Logger LOGGER = Logger.getLogger(PriceController.class.getName());
 
 	public PriceController(PriceProductsService accountsService) {
 		this.accountsService = accountsService;
 	}
-
-	/*@InitBinder
-	public void initBinder(WebDataBinder binder) {
-		binder.setAllowedFields("accountNumber", "searchText");
-	}*/
-/*
-	@RequestMapping("/accounts")
-	public String goHome() {
-		return "index";
-	}
-*/
+	
+	/**
+	 * Saves the Price with Productid.
+	 *  
+	 * @param price
+	 * 			Price Entity
+	 * @return saved entity.
+	 * @throws EntityCreateException.
+	 * @throws EntityCreateException.
+	 * 		   If any Exception Occurs while saving Price Entity/Object
+	 */
 	@RequestMapping("/createprice")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Price createPrice(@RequestBody Price price) {
-		return priceRepository.save(price);
-		// return "index";
+		Price save = null;
+		try{
+			LOGGER.info("price-service savePrice() invoked: " + price);
+			save = priceRepository.save(price);
+			if (save == null)
+				throw new EntityCreateException(save,"error while creating price information");
+			else {
+				return save;
+			}
+		}catch(Exception ex){
+			LOGGER.warning("error while saving price");
+			throw new EntityCreateException(save,ex.getLocalizedMessage());
+		}
 	}
 
+	/**
+	 * API to fetch all products with its price.
+	 * This API does not gives all necessary product information.
+	 * @param price
+	 * 			Price Entity
+	 * @return saved entity.
+	 * @throws EntityCreateException.
+	 * @throws EntityCreateException.
+	 * 		   If any Exception Occurs while saving Price Entity/Object
+	 */
 	@RequestMapping("/getprices")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Price> getPrices() {
-		return priceRepository.findAll();
-		// return "index";
+		List<Price> prices = null;
+		try{
+			LOGGER.info("price-service getPrices() invoked: ");
+			prices = priceRepository.findAll();
+			if(null == prices || prices.size() == 0)
+				throw new PriceNotFoundException("No Product Found");
+			return prices;
+		}catch(Exception ex){
+			LOGGER.info("price-service savePrice() error: ");
+			throw new PriceNotFoundException("Error while getting Products");
+		}
+		
 	}
 
+	/**
+	 * API to fetch products with its price based on the productid.
+	 * This API does not gives all necessary product information.
+	 * @param id
+	 * 			productnumber
+	 * @return saved entity.
+	 * @throws EntityCreateException.
+	 * @throws EntityCreateException.
+	 * 		   If any Exception Occurs while saving Price Entity/Object
+	 */
 	@RequestMapping("/getprice/{id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Price getPrice(Model model, @PathVariable("id") Long id) {
-		return priceRepository.findOne(id);
-		// return "index";
+		Price prices = null;
+		try{
+			LOGGER.info("price-service getPrice() invoked: ");
+			prices = priceRepository.findOne(id);
+			if(null == prices)
+				throw new PriceNotFoundException("No Product Found");
+			return prices;
+		}catch(Exception ex){
+			LOGGER.info("price-service getPrice() error: ");
+			throw new PriceNotFoundException("Error while getting Products");
+		}
 	}
-
+	
+	/**
+	 * EndPoint to get Product Information based on input ProductId
+	 * This API does gives all necessary product information.
+	 * @param id
+	 * 			productnumber
+	 * @return saved entity.
+	 * @throws EntityCreateException.
+	 * @throws EntityCreateException.
+	 * 		   If any Exception Occurs while saving Price Entity/Object
+	 */
 	@RequestMapping("/products/{productNumber}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Product byNumber(Model model, @PathVariable("productNumber") String productNumber) {
+	public Product byNumber(@PathVariable("productNumber") Long productNumber) {
 
-		logger.info("web-service byNumber() invoked: " + productNumber);
+		LOGGER.info("price-service byNumber() invoked: " + productNumber);
 
-		Product account = accountsService.findByNumber(productNumber);
+		Product aggregatedproduct = accountsService.findByNumber(productNumber);
 		
 		// getprice of that product
-		Price price = this.priceRepository.findOne(account.getId());
-		account.setPrice(price.getPrice());
-		logger.info("web-service byNumber() found: " + account);
-		// model.addAttribute("account", account);
-		return account;
+		Price price = this.priceRepository.findOne(aggregatedproduct.getId());
+		aggregatedproduct.setPrice(price.getPrice());
+
+		LOGGER.info("price-service byNumber() found: " + aggregatedproduct);
+		return aggregatedproduct;
 	}
-
-/*	@RequestMapping("/accounts/owner/{text}")
-	public String ownerSearch(Model model, @PathVariable("text") String name) {
-		logger.info("web-service byOwner() invoked: " + name);
-
-		List<Account> accounts = accountsService.byOwnerContains(name);
-		logger.info("web-service byOwner() found: " + accounts);
-		model.addAttribute("search", name);
-		if (accounts != null)
-			model.addAttribute("accounts", accounts);
-		return "accounts";
-	}*/
-
-/*	@RequestMapping(value = "/accounts/search", method = RequestMethod.GET)
-	public String searchForm(Model model) {
-		model.addAttribute("searchCriteria", new SearchCriteria());
-		return "accountSearch";
-	}*/
-
-	/*@RequestMapping(value = "/accounts/dosearch")
-	public Product doSearch(Model model, SearchCriteria criteria, BindingResult result) {
-		logger.info("web-service search() invoked: " + criteria);
-
-		criteria.validate(result);
-
-		if (result.hasErrors())
-			return "accountSearch";
-
-		String accountNumber = criteria.getAccountNumber();
-		if (StringUtils.hasText(accountNumber)) {
-			return byNumber(model, accountNumber);
-		} else {
-			String searchText = criteria.getSearchText();
-			return ownerSearch(model, searchText);
-		}
-	}*/
 }
