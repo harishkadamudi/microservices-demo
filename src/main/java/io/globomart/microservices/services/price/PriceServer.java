@@ -9,8 +9,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * Accounts web-server. Works as a microservice client, fetching data from the
- * Account-Service. Uses the Discovery Server (Eureka) to find the microservice.
+ * price-server. Works as a microservice client, fetching data from the
+ * price-Service. Uses the Discovery Server (Eureka) to find the microservice.
  * 
  * @author harishkadamudi
  */
@@ -49,26 +49,11 @@ public class PriceServer {
 		return new RestTemplate();
 	}
 
-	/**
-	 * The AccountService encapsulates the interaction with the micro-service.
-	 * 
-	 * @return A new service instance.
-	 */
 	@Bean
-	public PriceProductsService accountsService() {
-		return new PriceProductsService(PRODUCTS_SERVICE_URL);
+	public PriceController priceController() {
+		return new PriceController();
 	}
-
-	/**
-	 * Create the controller, passing it the {@link PriceProductsService} to use.
-	 * 
-	 * @return
-	 */
-	@Bean
-	public PriceController accountsController() {
-		return new PriceController(accountsService());
-	}
-
+	
 	@Bean
 	public HomeController homeController() {
 		return new HomeController();

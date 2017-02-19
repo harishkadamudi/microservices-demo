@@ -1,5 +1,6 @@
 package io.globomart.microservices.services;
 
+import io.globomart.microservices.services.composite.ProductPriceCompositeServer;
 import io.globomart.microservices.services.price.PriceServer;
 import io.globomart.microservices.services.products.ProductsServer;
 import io.globomart.microservices.services.registration.RegistrationServer;
@@ -38,6 +39,8 @@ public class Main {
 			ProductsServer.main(args);
 		} else if (serverName.equals("price")) {
 			PriceServer.main(args);
+		}else if (serverName.equals("composite")) {
+			ProductPriceCompositeServer.main(args);
 		} else {
 			System.out.println("Unknown server type: " + serverName);
 			usage();

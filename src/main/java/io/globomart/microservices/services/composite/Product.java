@@ -1,4 +1,4 @@
-package io.globomart.microservices.services.price;
+package io.globomart.microservices.services.composite;
 
 import java.math.BigDecimal;
 
@@ -67,4 +67,12 @@ public class Product {
 		this.price = price;
 	}
 
+	public Product(Long id, String name, String description, BigDecimal price) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.price = price;
+	}
+	
 }
