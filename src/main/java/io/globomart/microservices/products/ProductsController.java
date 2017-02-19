@@ -137,8 +137,8 @@ public class ProductsController {
 			productRepository.delete(productId);
 			LOGGER.info("products-service deletebyid() found: ");
 		}catch(Exception ex){
-			return new ResponseEntity<Boolean>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Boolean>(Boolean.FALSE,HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<Boolean>(HttpStatus.OK);
+		return new ResponseEntity<Boolean>(Boolean.TRUE,HttpStatus.OK);
 	}
 }

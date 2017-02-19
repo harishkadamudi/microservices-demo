@@ -3,3 +3,5 @@ timeout 10
 start /D target call java -jar microservice-demo-1.1.0.RELEASE.jar  products
 timeout 10
 start /D target call java -jar microservice-demo-1.1.0.RELEASE.jar  price
+timeout 10
+start /D target call java -jar microservice-demo-1.1.0.RELEASE.jar  composite

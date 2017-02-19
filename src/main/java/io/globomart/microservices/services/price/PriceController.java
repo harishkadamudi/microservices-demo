@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -20,8 +19,8 @@ import io.globomart.microservices.exceptions.EntityCreateException;
 import io.globomart.microservices.exceptions.PriceNotFoundException;
 
 /**
- * Client controller, fetches Product info from the microservice via
- * {@link PriceProductsService}.
+ * Client controller, fetches price info from the db via
+ * {@link PriceRepository}.
  * 
  * @author harishkadamudi
  */
